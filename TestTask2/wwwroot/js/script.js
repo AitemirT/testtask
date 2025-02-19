@@ -422,7 +422,7 @@ async function updateCompany(id, modal) {
     };
 
     try {
-        const response = await fetch(`${apiEmployee}/${id}`, {
+        const response = await fetch(`${apiCompany}/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -440,7 +440,7 @@ async function updateCompany(id, modal) {
             }
         } else {
             modal.hide();
-            await loadEmployees();
+            await loadCompanies();
             document.getElementById('employeeModal').remove();
         }
     } catch (error) {
