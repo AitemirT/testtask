@@ -273,7 +273,7 @@ async function loadCompanies(){
                             <td>${comp.name}</td>
                             <td>
                                 <button class="btn btn-warning btn-sm" onclick="editCompany(${comp.id})">Редактировать</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteDeleteCompany(${comp.id})">Удалить</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteCompany(${comp.id})">Удалить</button>
                             </td>
                         </tr>
                     `).join('')}
@@ -291,13 +291,13 @@ async function showCreateCompanyModal() {
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="companyModalLabel">Создать сотрудника</h5>
+                        <h5 class="modal-title" id="companyModalLabel">Создать компанию</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
                     </div>
                     <div class="modal-body">
                         <form id="companyForm">
                             <div class="mb-3">
-                                <label for="Name" class="form-label">Имя</label>
+                                <label for="Name" class="form-label">Название</label>
                                 <input type="text" class="form-control" id="Name">
                                 <div class="validation-error text-danger"></div>
                             </div>
@@ -354,7 +354,7 @@ async function createCompany(modal) {
     }
 }
 
-async function deleteDeleteCompany(id) {
+async function deleteCompany(id) {
     if(confirm("Вы уверены что хотите удалить эту компанию?")){
         try {
             const response = await fetch(`${apiCompany}/${id}`, {
@@ -367,6 +367,7 @@ async function deleteDeleteCompany(id) {
                 console.error('Ошибка при удалении сотрудника');
             } else {
                 await loadCompanies();
+                await loadProjects();
             }
         }catch (error) {
             console.error('Ошибка при удалении компании:', error);
@@ -378,8 +379,8 @@ async function editCompany(id) {
     try {
         const response = await fetch(`${apiCompany}/${id}`);
         const data = await response.json();
+        
         removeExistingModal('companyModal');
-
         const modalHtml = `
         <div class="modal fade" id="companyModal" tabindex="-1" aria-labelledby="companyModalModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -395,7 +396,7 @@ async function editCompany(id) {
                                 <input type="text" class="form-control" id="Name" value="${data.name}">
                                 <div class="validation-error text-danger"></div>
                             </div>
-                            <button type="submit" class="btn btn-primary">Создать</button>
+                            <button type="submit" class="btn btn-primary">Обновить</button>
                         </form>
                     </div>
                 </div>
@@ -422,7 +423,7 @@ async function updateCompany(id, modal) {
     };
 
     try {
-        const response = await fetch(`${apiEmployee}/${id}`, {
+        const response = await fetch(`${apiCompany}/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -440,7 +441,7 @@ async function updateCompany(id, modal) {
             }
         } else {
             modal.hide();
-            await loadEmployees();
+            await loadCompanies();
             document.getElementById('employeeModal').remove();
         }
     } catch (error) {

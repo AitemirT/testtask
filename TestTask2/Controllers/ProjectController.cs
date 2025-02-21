@@ -4,90 +4,54 @@ using TestTask2.Helperls;
 using TestTask2.Interfaces;
 using TestTask2.Mappers;
 using TestTask2.Models;
+using TestTask2.Services;
 
 namespace TestTask2.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class ProjectController : ControllerBase
 {
-    private readonly IProjectRepository _projectRepository;
+    private readonly ProjectService _projectService;
 
-    public ProjectController(IProjectRepository projectRepository)
+    public ProjectController(ProjectService projectService)
     {
-        _projectRepository = projectRepository;
+        _projectService = projectService;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetProjects([FromQuery] QueryObj queryObj)
     {
-        if (queryObj.StartDateFrom.HasValue)
-        {
-            queryObj.StartDateFrom = queryObj.StartDateFrom.Value.ToUniversalTime();
-        }
-
-        if (queryObj.StartDateTo.HasValue)
-        {
-            queryObj.StartDateTo = queryObj.StartDateTo.Value.ToUniversalTime();
-        }
-        var projects = await _projectRepository.GetAllProjectsAsync(queryObj);
-        var projectDtos = projects.Select(p => p.ToProjectDto()).ToList();
-        return Ok(projectDtos);
+        return Ok(await _projectService.GetAllProjectsAsync(queryObj));
     }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetProject(int id)
     {
-        try
-        {
-            Project? project = await _projectRepository.GetProjectByIdAsync(id);
-            return project is null ? NotFound() : Ok(project.ToProjectDto());
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, 
-                new { message = "Ошибка при получении проекта", error = ex.Message });
-        }
+        var project = await _projectService.GetProjectByIdAsync(id);
+        return project == null ? NotFound() : Ok(project);
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateProject([FromBody] CreateProjectDto createProjectDto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-        createProjectDto.StartDate = createProjectDto.StartDate.ToUniversalTime();
-        createProjectDto.EndDate = createProjectDto.EndDate.ToUniversalTime();
-        var projectModel = createProjectDto.ToProjectFromCreateProjectDto();
-        try
-        {
-            Project createdProject = await _projectRepository.CreateProjectAsync(projectModel);
-            return CreatedAtAction(nameof(GetProject), new { id = createdProject.Id }, createdProject.ToProjectDto());
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);  
-        }
+        var project = await _projectService.CreateProjectAsync(createProjectDto);
+        return project == null ? StatusCode(500, "Не удалось сохранить проект") : Ok(project);
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateProjectDto updateProjectDto)
     {
-        updateProjectDto.StartDate = updateProjectDto.StartDate.ToUniversalTime();
-        updateProjectDto.EndDate = updateProjectDto.EndDate.ToUniversalTime();
         if (!ModelState.IsValid) return BadRequest(ModelState);
-        Project? project = await _projectRepository.UpdateProjectAsync(id, updateProjectDto);
-        if (project == null)
-        {
-            return NotFound();
-        }
-        return Ok(project.ToProjectDto());
+        var project = await _projectService.UpdateProjectAsync(id, updateProjectDto);
+        return project == null ? NotFound() : Ok(project);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-        Project? project = await _projectRepository.DeleteProjectAsync(id);
-        if(project == null) return NotFound();
-        return NoContent();
+        var project = await _projectService.DeleteProjectAsync(id);
+        return project == null ? NotFound() : Ok(project);
     }
     
 }

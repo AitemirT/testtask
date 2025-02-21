@@ -23,6 +23,7 @@ public class ProjectRepository : IProjectRepository
             .Include(p => p.ExecutorCompany)
             .Include(p => p.ProjectManager)
             .Include(p => p.ProjectEmployees)
+            .ThenInclude(p => p.Employee)
             .AsQueryable();
 
         if (queryObj.Priority.HasValue)
@@ -61,6 +62,7 @@ public class ProjectRepository : IProjectRepository
             .Include(p => p.ExecutorCompany)
             .Include(p => p.ProjectManager)
             .Include(p => p.ProjectEmployees)
+            .ThenInclude(p => p.Employee)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 

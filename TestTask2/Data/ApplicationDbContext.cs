@@ -20,13 +20,13 @@ public class ApplicationDbContext : IdentityDbContext<AppUser, IdentityRole<int>
             .HasMany(c => c.CustomerProjects)
             .WithOne(p => p.CustomerCompany)
             .HasForeignKey(p => p.CustomerCompanyId)
-            .OnDelete(DeleteBehavior.Restrict); 
+            .OnDelete(DeleteBehavior.Cascade); 
         
         builder.Entity<Company>()
             .HasMany(c => c.ExecutorProjects)
             .WithOne(p => p.ExecutorCompany)
             .HasForeignKey(p => p.ExecutorCompanyId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
         
         List<IdentityRole<int>> roles = new List<IdentityRole<int>>()
         {

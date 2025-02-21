@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using TestTask2.Data;
 using TestTask2.Interfaces;
 using TestTask2.Repository;
+using TestTask2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,10 @@ builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IProjectEmployeeRepository, ProjectEmployeeRepository>();
+builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<ProjectEmployeeService>();
+builder.Services.AddScoped<CompanyService>();
+builder.Services.AddScoped<ProjectService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
